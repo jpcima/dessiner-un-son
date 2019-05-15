@@ -68,15 +68,21 @@ void write_wave(const float *in_samples,
       out << out_samples[i] << '\n';
     break;
 
-   case WaveCpp: {
+   case WaveCpp:
+   case WaveC: {
      const char *ctypename =
        (type == WaveFloat) ? "float" :
        (type == WaveInt16) ? "int16_t" :
        (type == WaveInt8) ? "int8_t" : nullptr;
      assert(ctypename);
-     out << "#include <array>\n" "#include <cstdint>\n\n"
-            "[[gnu::unused]] static constexpr std::array<"
-         << ctypename << ", " << out_sample_count << "> table {\n";
+     if (fmt == WaveCpp)
+         out << "#include <array>\n" "#include <cstdint>\n\n"
+             "[[gnu::unused]] static constexpr std::array<"
+             << ctypename << ", " << out_sample_count << "> table {\n";
+     else
+         out << "#include <stdint.h>\n\n"
+             "static const "
+             << ctypename << " table [" << out_sample_count << "] = {\n";
      for (int i = 0; i < out_sample_count; ++i)
        out << ' ' << out_samples[i] << ',';
      out << " };\n";
@@ -260,6 +266,7 @@ bool read_wave_from_string(float *out_samples,
         out_samples, out_sample_count, in, channel);
 
     case WaveCpp:
+    case WaveC:
       return read_wave_from_cpp(
         out_samples, out_sample_count, in, channel);
 

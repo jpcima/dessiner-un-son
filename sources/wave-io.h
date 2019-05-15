@@ -5,11 +5,13 @@
 enum WaveFormat {
   WaveDat,
   WaveCpp,
+  WaveC,
 };
 
 #define WAVE_FORMAT_NAME_FILTERS                \
   {"Data points (*.dat)",                       \
-   "C++ source (*.h)"}
+   "C++ source (*.h)",                          \
+   "C source (*.h)"}
 #define WAVE_FORMAT_SUFFIXES                    \
   {".dat", ".h"}
 
