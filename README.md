@@ -8,3 +8,9 @@ The author uses this software to experiment various waves with his wavetable syn
 For editing, the data is resampled and quantized to screen dimensions. If the user desires more resolution than the default settings provide, currently he must edit manually the variables *gridwidth* and *gridheight* in source code.
 
 ![Screenshot](docs/screenshot.png)
+
+## Dependencies
+
+Install the following software packages, on a Debian-style GNU+Linux OS.
+
+`qt5-qmake` `qtbase5-dev-tools` `qtbase5-dev` `qtmultimedia5-dev` `libqt5multimedia5-plugins` `libspeexdsp-dev` `libboost-dev`
