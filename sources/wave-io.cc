@@ -10,6 +10,9 @@
 static int sat16(int x) {
   return (x < INT16_MIN) ? INT16_MIN : (x > INT16_MAX) ? INT16_MAX : x;
 }
+static int sat8(int x) {
+  return (x < INT8_MIN) ? INT8_MIN : (x > INT8_MAX) ? INT8_MAX : x;
+}
 
 static float satfloat(float x) {
   if (!std::isfinite(x))
@@ -25,6 +28,7 @@ static void convert_to_float(float *samples,
     switch (type) {
      case WaveFloat: break;
      case WaveInt16: s /= INT16_MAX; break;
+     case WaveInt8: s /= INT8_MAX; break;
      default: assert(false);
     }
     samples[i] = satfloat(s);
@@ -38,7 +42,8 @@ static void convert_from_float(float *samples,
     float s = samples[i];
     switch (type) {
     case WaveFloat: s = satfloat(s); break;
-    case WaveInt16: s = sat16(samples[i] * INT16_MAX); break;
+    case WaveInt16: s = sat16(std::lround(samples[i] * INT16_MAX)); break;
+    case WaveInt8: s = sat8(std::lround(samples[i] * INT8_MAX)); break;
     default: assert(false);
     }
     samples[i] = s;
@@ -66,7 +71,8 @@ void write_wave(const float *in_samples,
    case WaveCpp: {
      const char *ctypename =
        (type == WaveFloat) ? "float" :
-       (type == WaveInt16) ? "int16_t" : nullptr;
+       (type == WaveInt16) ? "int16_t" :
+       (type == WaveInt8) ? "int8_t" : nullptr;
      assert(ctypename);
      out << "#include <array>\n" "#include <cstdint>\n\n"
             "[[gnu::unused]] static constexpr std::array<"
@@ -115,8 +121,10 @@ static WaveDataType detect_data_type(const float *samples,
 
   WaveDataType type = WaveFloat;
   if (allinteger) {
-    // test according to min/max when I add more int formats
-    type = WaveInt16;
+    if (min >= INT8_MIN && max <= INT8_MAX)
+      type = WaveInt8;
+    else
+      type = WaveInt16;
   }
 
   static const char *datatypenames[] = WAVE_DATA_TYPE_NAMES;

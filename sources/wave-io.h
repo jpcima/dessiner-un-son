@@ -16,10 +16,11 @@ enum WaveFormat {
 enum WaveDataType {
   WaveFloat,
   WaveInt16,
+  WaveInt8,
 };
 
 #define WAVE_DATA_TYPE_NAMES                    \
-  {"32-bit float", "16-bit signed integer"}
+  {"32-bit float", "16-bit signed integer", "8-bit signed integer"}
 
 void write_wave(const float *in_samples,
                 unsigned in_sample_count,
