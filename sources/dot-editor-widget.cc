@@ -185,7 +185,7 @@ void BasicDotEditorWidget::mouseMoveEvent(QMouseEvent *event) {
 void BasicDotEditorWidget::activateDot(QPoint gridpos) {
   if (!inGridBounds(gridpos))
     return;
-  double val = (double(gridpos.y()) / (P->ydots - 1)) * 2.0 - 1.0;
+  double val = (1.0 - double(gridpos.y()) / (P->ydots - 1)) * 2.0 - 1.0;
   P->dotdata[gridpos.x()] = val;
 }
 
@@ -248,7 +248,7 @@ void BasicDotEditorWidget::paintDots(QPainter &painter) const {
   double oldval = 0.0;
   for (int x = 0; x < P->xdots; ++x) {
     double val = P->dotdata[x];
-    val = (val + 1.0) / 2.0;
+    val = (1.0 - val) * 0.5;
     val = (val < 0.0) ? 0.0 : (val > +1.0) ? +1.0 : val;
     // val normalized to [0,1]
     int y = val * (P->ydots - 1);
