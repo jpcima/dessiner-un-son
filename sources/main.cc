@@ -17,6 +17,7 @@
 #include <boost/scope_exit.hpp>
 #include <iostream>
 #include <fstream>
+#include <cmath>
 
 int dotsize = 1;
 int gridwidth = 1024;
@@ -178,6 +179,9 @@ void prepare_audio() {
   audio_out = new QAudioOutput(info, audio_format);
   std::cerr << "audio sampling rate is " << audio_format.sampleRate() << "\n";
   std::cerr << "audio buffer size is " << ::audio_out->bufferSize() << "\n";
+
+  double attenuation = -20.0;
+  audio_out->setVolume(std::pow(10.0, attenuation * 0.05));
 
   ::wave_generator = new WaveGenerator(audio_out);
   ::wave_generator->start(::audio_out->bufferSize(), ::audio_format.sampleRate());
