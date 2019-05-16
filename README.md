@@ -13,4 +13,4 @@ For editing, the data is resampled and quantized to screen dimensions. If the us
 
 Install the following software packages, on a Debian-style GNU+Linux OS.
 
-`qt5-qmake` `qtbase5-dev-tools` `qtbase5-dev` `qtmultimedia5-dev` `libqt5multimedia5-plugins` `libspeexdsp-dev` `libboost-dev`
+`qt5-qmake` `qtbase5-dev-tools` `qtbase5-dev` `qtmultimedia5-dev` `libqt5multimedia5-plugins` `libspeexdsp-dev` `libboost-dev` `liblua5.3-dev`
