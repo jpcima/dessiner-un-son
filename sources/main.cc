@@ -237,15 +237,25 @@ bool load_wavedata(std::vector<double> &wavedata) {
 bool gen_wavedata(std::vector<double> &wavedata)
 {
     NewWaveEditor waveEd;
-    if (waveEd.exec() != QDialog::Accepted)
-        return false;
+    bool update = false;
 
-    std::vector<float> in_samples(waveEd.waveData(), waveEd.waveData() + waveEd.waveSize());
-    std::unique_ptr<float[]> out_samples(new float[wavedata.size()]);
+    auto update_dotdata =
+        [&] {
+            std::vector<float> in_samples(waveEd.waveData(), waveEd.waveData() + waveEd.waveSize());
+            std::unique_ptr<float[]> out_samples(new float[wavedata.size()]);
 
-    resample(in_samples.data(), in_samples.size(),
-             out_samples.get(), wavedata.size());
+            resample(in_samples.data(), in_samples.size(),
+                     out_samples.get(), wavedata.size());
 
-    wavedata.assign(&out_samples[0], &out_samples[wavedata.size()]);
-    return true;
+            wavedata.assign(&out_samples[0], &out_samples[wavedata.size()]);
+
+            update = true;
+        };
+
+    QObject::connect(&waveEd, &NewWaveEditor::editingFinished, &waveEd, update_dotdata);
+
+    if (waveEd.exec() == QDialog::Accepted)
+        update_dotdata();
+
+    return update;
 }
