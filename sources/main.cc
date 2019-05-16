@@ -3,8 +3,10 @@
 #include "wave-generator.h"
 #include "wave-io.h"
 #include "wave-io-dialog.h"
+#include "new-wave-editor.h"
 #include <QApplication>
 #include <QMainWindow>
+#include <QMenuBar>
 #include <QToolBar>
 #include <QDoubleSpinBox>
 #include <QLabel>
@@ -32,14 +34,18 @@ int main(int argc, char *argv[]) {
 
 void prepare_gui() {
   QMainWindow *win = new QMainWindow;
+
+  QMenuBar *mb = win->menuBar();
+  QMenu *fileMenu = mb->addMenu("File");
+  QAction *actGenerate = fileMenu->addAction(QIcon::fromTheme("document-new"), "Generate &new...");
+  actGenerate->setShortcut(QKeySequence("Ctrl+N"));
+  QAction *actOpen = fileMenu->addAction(QIcon::fromTheme("document-open"), "&Open");
+  actOpen->setShortcut(QKeySequence("Ctrl+O"));
+  QAction *actSave = fileMenu->addAction(QIcon::fromTheme("document-save"), "&Save");
+  actSave->setShortcut(QKeySequence("Ctrl+S"));
+
   QToolBar *tb = new QToolBar;
   win->addToolBar(tb);
-
-  QAction *actSave = tb->addAction("&Save");
-  actSave->setShortcut(QKeySequence("Ctrl+S"));
-  QAction *actOpen = tb->addAction("&Open");
-  actOpen->setShortcut(QKeySequence("Ctrl+O"));
-  tb->addSeparator();
 
   QAction *actSmooth = tb->addAction("Smooth");
   QDoubleSpinBox *valSmooth = new QDoubleSpinBox;
@@ -103,6 +109,12 @@ void prepare_gui() {
                      if (load_wavedata(dotdata))
                        editor->update();
                    });
+  QObject::connect(actGenerate, &QAction::triggered,
+                   editor, [editor]() {
+                               std::vector<double> &dotdata = editor->dotData();
+                               if (gen_wavedata(dotdata))
+                                   editor->update();
+                           });
 
   QObject::connect(actSmooth, &QAction::triggered,
                    editor, [editor, valSmooth]() { editor->smooth(valSmooth->value()); });
@@ -220,4 +232,20 @@ bool load_wavedata(std::vector<double> &wavedata) {
 
   wavedata.assign(fdata.begin(), fdata.end());
   return true;
+}
+
+bool gen_wavedata(std::vector<double> &wavedata)
+{
+    NewWaveEditor waveEd;
+    if (waveEd.exec() != QDialog::Accepted)
+        return false;
+
+    std::vector<float> in_samples(waveEd.waveData(), waveEd.waveData() + waveEd.waveSize());
+    std::unique_ptr<float[]> out_samples(new float[wavedata.size()]);
+
+    resample(in_samples.data(), in_samples.size(),
+             out_samples.get(), wavedata.size());
+
+    wavedata.assign(&out_samples[0], &out_samples[wavedata.size()]);
+    return true;
 }
